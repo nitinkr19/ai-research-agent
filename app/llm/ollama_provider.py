@@ -4,9 +4,11 @@ Works with Ollama running at OLLAMA_BASE_URL.
 """
 
 from typing import List, Dict, Any
-import httpx
+import requests
 
 from app.llm.base import BaseLLMProvider
+from openai import OpenAI
+from app.core.config import settings
 
 
 class OllamaProvider(BaseLLMProvider):
@@ -16,20 +18,36 @@ class OllamaProvider(BaseLLMProvider):
         self.base_url = base_url.rstrip("/")
         self.model = model
 
-    async def complete(
-        self,
-        messages: List[Dict[str, str]],
-        **kwargs: Any,
-    ) -> str:
-        """Call Ollama Chat API."""
-        async with httpx.AsyncClient(timeout=120.0) as client:
-            response = await client.post(
-                f"{self.base_url}/api/chat",
-                json={"model": self.model, "messages": messages, "stream": False},
-            )
-            response.raise_for_status()
-            data = response.json()
-            return data.get("message", {}).get("content", "")
+    # async def complete(
+    #     self,
+    #     messages: List[Dict[str, str]],
+    #     **kwargs: Any,
+    # ) -> str:
+    #     """Call Ollama Chat API."""
+    #     async with httpx.AsyncClient(timeout=120.0) as client:
+    #         response = await client.post(
+    #             f"{self.base_url}/api/chat",
+    #             json={"model": self.model, "messages": messages, "stream": False},
+    #         )
+    #         response.raise_for_status()
+    #         data = response.json()
+    #         return data.get("message", {}).get("content", "")
 
     def __repr__(self) -> str:
         return f"OllamaProvider(model={self.model}, url={self.base_url})"
+
+    def generate(self, messages):
+        prompt = "\n".join([m["content"] for m in messages])
+
+        response = requests.post(
+            f"{settings.ollama_base_url}/api/generate",
+            json={
+                "model": settings.ollama_model,
+                "prompt": prompt,
+                "stream": False
+            }
+        )
+
+        print("STATUS:", response.status_code)
+        print("RAW:", response.text)
+        return response.json()["response"]

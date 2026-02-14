@@ -9,26 +9,46 @@ from app.llm.factory import get_llm_provider
 from app.agent.planner import Planner
 from app.agent.executor import Executor
 
+from fastapi import FastAPI
+from app.llm.factory import get_llm_provider
 
-async def main():
-    """Run the AI research agent."""
-    print("🤖 AI Research Agent starting...")
+app = FastAPI()
 
-    # Initialize components
-    llm = get_llm_provider()
-    planner = Planner(llm=llm)
-    executor = Executor(llm=llm)
+llm = get_llm_provider()
 
-    # Example: Plan and execute a simple research task
-    task = "Explain the difference between supervised and unsupervised learning"
-    print(f"\n📋 Task: {task}")
+@app.get("/health")
+def health():
+    return {"status": "ok"}
 
-    plan = await planner.create_plan(task)
-    print(f"\n📝 Plan: {plan}")
+@app.post("/test")
+def test_llm(prompt: str):
+    messages = [
+        {"role": "system", "content": "You are helpful."},
+        {"role": "user", "content": prompt}
+    ]
 
-    result = await executor.execute(plan, task)
-    print(f"\n✅ Result:\n{result}")
+    response = llm.generate(messages)
+    return {"response": response}
+
+# async def main():
+#     """Run the AI research agent."""
+#     print("🤖 AI Research Agent starting...")
+
+#     # Initialize components
+#     llm = get_llm_provider()
+#     planner = Planner(llm=llm)
+#     executor = Executor(llm=llm)
+
+#     # Example: Plan and execute a simple research task
+#     task = "Explain the difference between supervised and unsupervised learning"
+#     print(f"\n📋 Task: {task}")
+
+#     plan = await planner.create_plan(task)
+#     print(f"\n📝 Plan: {plan}")
+
+#     result = await executor.execute(plan, task)
+#     print(f"\n✅ Result:\n{result}")
 
 
-if __name__ == "__main__":
-    asyncio.run(main())
+# if __name__ == "__main__":
+#     asyncio.run(main())

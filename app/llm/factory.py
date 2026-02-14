@@ -22,7 +22,7 @@ def get_llm_provider() -> BaseLLMProvider:
             api_key=settings.openai_api_key,
             model=settings.openai_model,
         )
-    elif settings.LLM_PROVIDER == "ollama":
+    elif settings.llm_provider.lower() == "ollama":
         return OllamaProvider(
             base_url=settings.ollama_base_url,
             model=settings.ollama_model,
