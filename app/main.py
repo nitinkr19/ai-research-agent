@@ -6,7 +6,7 @@ Run the agent to perform autonomous AI research tasks.
 import asyncio
 from app.core.config import settings
 from app.llm.factory import get_llm_provider
-from app.agent.planner import Planner
+from app.agent.planner import create_plan
 from app.agent.executor import Executor
 
 from fastapi import FastAPI
@@ -29,6 +29,10 @@ def test_llm(prompt: str):
 
     response = llm.generate(messages)
     return {"response": response}
+
+@app.post("/plan")
+def plan(topic: str):
+    return {"questions": create_plan(topic)}
 
 # async def main():
 #     """Run the AI research agent."""
