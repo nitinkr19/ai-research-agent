@@ -1,7 +1,7 @@
 """Tests for app.agent.executor."""
 
 import pytest
-from unittest.mock import patch, MagicMock, AsyncMock
+from unittest.mock import patch, MagicMock
 
 
 def test_chunk_text():
@@ -15,18 +15,14 @@ def test_chunk_text():
     assert " ".join(chunks).replace("  ", " ") == text
 
 
-@patch("app.agent.executor.get_search_tool")
+@patch("app.agent.executor.search_tool")
 @patch("app.agent.executor.create_plan")
-@patch("app.agent.executor.get_llm_provider")
-def test_run_agent(mock_llm, mock_plan, mock_search):
+@patch("app.agent.executor.llm")
+def test_run_agent(mock_llm, mock_plan, mock_search_tool):
     """run_agent returns plan and report."""
     mock_plan.return_value = ["Q1", "Q2"]
-    mock_search_tool = MagicMock()
-    # run_agent calls search_tool.run(question) - SearchTool.run is async
-    # Executor might need asyncio - mock run to return a string directly for sync
     mock_search_tool.run = MagicMock(return_value="result for Q")
-    mock_search.return_value = mock_search_tool
-    mock_llm.return_value.generate.return_value = "Final report here"
+    mock_llm.generate.return_value = "Final report here"
 
     from app.agent.executor import run_agent
 
