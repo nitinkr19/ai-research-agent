@@ -12,7 +12,6 @@ from app.memory.faiss_store import FaissVectorStore
 
 llm = get_llm_provider()
 search_tool = SearchTool()
-vector_store = FaissVectorStore(dim=3072)
 
 def run_agent(topic: str):
 
@@ -46,6 +45,8 @@ def run_agent(topic: str):
     }
 
 async def run_agent_stream(topic: str):
+
+    vector_store = FaissVectorStore(dim=3072)
 
     yield "🔎 Planning research...\n"
     await asyncio.sleep(0.01)
