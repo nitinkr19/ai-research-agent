@@ -7,10 +7,12 @@ import asyncio
 from app.agent.planner import create_plan
 from app.tools.search import SearchTool
 from app.llm.factory import get_llm_provider
+from app.memory.faiss_store import FaissVectorStore
 
 
 llm = get_llm_provider()
 search_tool = SearchTool()
+vector_store = FaissVectorStore(dim=3072)
 
 def run_agent(topic: str):
 
@@ -61,38 +63,45 @@ async def run_agent_stream(topic: str):
     tasks = [fetch_question(q) for q in plan]
     research_notes = await asyncio.gather(*tasks)
 
+    yield "📦 Chunking & indexing research...\n"
+    
+    for note in research_notes:
+        chunks = chunk_text(note)
+
+        for chunk in chunks:
+            vector_store.add(chunk)
+
+    yield "🔎 Retrieving relevant context...\n"
+
+    relevant_context = vector_store.search(topic, k=3)
+    context_str = "\n\n".join(relevant_context)
+
     yield "\n🧠 Generating report...\n\n"
 
     messages = [
-        {"role": "system", "content": "Write a structured report."},
-        {"role": "user", "content": f"Topic: {topic}\nNotes: {research_notes}"}
+        {"role": "system", "content": "Write a concise structured report under 500 words."},
+        {"role": "user", "content": f"Topic: {topic}\n\nRelevant Context:\n{context_str}"}
     ]
 
+    max_chars = 4000
+    count = 0
+
     for chunk in llm.generate_stream(messages):
+        count += len(chunk)
+        if count > max_chars:
+            break
         yield chunk
 
+
 async def fetch_question(question):
-    return search_tool.run(question)
+    return await search_tool.run(question)
 
-# class Executor:
-#     """Executes research plans and returns findings."""
+def chunk_text(text, chunk_size=300):
+    words = text.split()
+    chunks = []
 
-#     def __init__(self, llm: BaseLLMProvider):
-#         self.llm = llm
+    for i in range(0, len(words), chunk_size):
+        chunk = " ".join(words[i:i+chunk_size])
+        chunks.append(chunk)
 
-#     async def execute(self, plan: str, task: str) -> str:
-#         """
-#         Execute a research plan for the given task.
-
-#         Args:
-#             plan: The step-by-step plan to follow.
-#             task: Original research task.
-
-#         Returns:
-#             The research findings as a string.
-#         """
-#         messages = [
-#             {"role": "system", "content": EXECUTION_SYSTEM},
-#             {"role": "user", "content": EXECUTION_USER.format(plan=plan, task=task)},
-#         ]
-#         return await self.llm.complete(messages)
+    return chunks

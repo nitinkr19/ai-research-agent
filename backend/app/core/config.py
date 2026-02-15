@@ -55,6 +55,16 @@ class Settings:
     def openai_model(self) -> str:
         """OpenAI model name."""
         return os.getenv("OPENAI_MODEL", "gpt-4")
+    
+    @property
+    def generation_model(self) -> str:
+        """EMBEDDING_MODEL name."""
+        return os.getenv("GENERATION_MODEL", "phi3:mini")
+
+    @property
+    def embedding_model(self) -> str:
+        """EMBEDDING_MODEL name."""
+        return os.getenv("EMBEDDING_MODEL", "phi3:mini")
 
 
 # Convenience instance
