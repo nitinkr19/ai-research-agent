@@ -13,6 +13,7 @@ class SearchTool(Tool):
     async def run(self, query: str) -> str:
         # simulate network delay
         await asyncio.sleep(1)
+        print(">>> USING LOCAL SEARCH <<<")
         return f"Simulated search results for: {query}"
 
 # async def web_search(query: str, num_results: int = 5) -> List[dict]:
