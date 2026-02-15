@@ -73,7 +73,7 @@ class Settings:
 
     @property
     def search_tool(self) -> str:
-        """vector_store name."""
+        """search_tool name."""
         return os.getenv("SEARCH_PROVIDER", "local")
 
 

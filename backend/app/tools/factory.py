@@ -1,11 +1,11 @@
-import os
+from app.core.config import settings
 from app.tools.search import SearchTool
 from app.tools.tavily_search import TavilySearchTool
 
 
 def get_search_tool():
 
-    provider = os.getenv("SEARCH_PROVIDER", "local")
+    provider = settings.search_tool.lower()
 
     if provider == "local":
         return SearchTool()

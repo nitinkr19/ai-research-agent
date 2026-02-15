@@ -1,11 +1,12 @@
 from app.memory.faiss_store import FaissVectorStore
+from app.core.config import settings
 
 def get_vector_store():
     # Later this can switch via ENV
-    provider = os.getenv("VECTOR_STORE", "faiss")
+    provider = settings.vector_store.lower()
 
     if provider == "faiss":
-        return FaissVectorStore(dim=768)
+        return FaissVectorStore(dim=3072)
 
     else:
         raise ValueError("Invalid VECTOR_STORE")
