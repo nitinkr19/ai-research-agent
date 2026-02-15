@@ -4,15 +4,26 @@ function App() {
   const [topic, setTopic] = useState("");
   const [plan, setPlan] = useState(null);
   const [report, setReport] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const runResearch = async () => {
-    const response = await fetch(`/research?topic=${encodeURIComponent(topic)}`, {
-      method: "POST"
-    });
-
-    const data = await response.json();
-    setPlan(data.plan);
-    setReport(data.report);
+  
+  const runResearch = () => {
+    setLoading(true);
+    setReport("");
+  
+    const eventSource = new EventSource(
+      `http://localhost:8000/research-stream?topic=${encodeURIComponent(topic)}`
+    );
+  
+    eventSource.onmessage = (event) => {
+      setReport(prev => prev + event.data);
+    };
+  
+    eventSource.onerror = (err) => {
+      console.log("SSE error:", err);
+      eventSource.close();
+      setLoading(false);
+    };
   };
 
   return (
@@ -27,7 +38,11 @@ function App() {
       />
 
       <br /><br />
-      <button onClick={runResearch}>Run Research</button>
+      <button onClick={runResearch} disabled={loading}>
+        {loading ? "Running..." : "Run Research"}
+      </button>
+
+      {loading && <p>⏳ Generating research...</p>}
 
       {plan && (
         <>
@@ -47,4 +62,3 @@ function App() {
 }
 
 export default App;
-

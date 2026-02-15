@@ -3,9 +3,11 @@ Executor: runs research plans and produces findings.
 Uses the LLM to execute each step and synthesize results.
 """
 
+import asyncio
 from app.agent.planner import create_plan
 from app.tools.search import SearchTool
 from app.llm.factory import get_llm_provider
+
 
 llm = get_llm_provider()
 search_tool = SearchTool()
@@ -41,6 +43,34 @@ def run_agent(topic: str):
         "report": final_report
     }
 
+async def run_agent_stream(topic: str):
+
+    yield "🔎 Planning research...\n"
+    await asyncio.sleep(0.01)
+
+    plan = await asyncio.to_thread(create_plan, topic)
+
+    yield "\n=== PLAN ===\n"
+    for q in plan:
+        yield f"- {q}\n"
+
+    yield "\n🧠 Generating report...\n\n"
+
+    research_notes = []
+
+    tasks = [fetch_question(q) for q in plan]
+    research_notes = await asyncio.gather(*tasks)
+
+    messages = [
+        {"role": "system", "content": "Write a structured report."},
+        {"role": "user", "content": f"Topic: {topic}\nNotes: {research_notes}"}
+    ]
+
+    for chunk in llm.generate_stream(messages):
+        yield chunk
+
+async def fetch_question(question):
+    return search_tool.run(question)
 
 # class Executor:
 #     """Executes research plans and returns findings."""

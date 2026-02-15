@@ -3,7 +3,8 @@ Ollama provider for local models (llama2, mistral, etc.).
 Works with Ollama running at OLLAMA_BASE_URL.
 """
 
-from typing import List, Dict, Any
+# from typing import List, Dict, Any
+import json
 import requests
 
 from app.llm.base import BaseLLMProvider
@@ -51,3 +52,23 @@ class OllamaProvider(BaseLLMProvider):
         print("STATUS:", response.status_code)
         print("RAW:", response.text)
         return response.json()["response"]
+    
+    def generate_stream(self, messages):
+        prompt = "\n".join([m["content"] for m in messages])
+
+        response = requests.post(
+            f"{settings.ollama_base_url}/api/generate",
+            json={
+                "model": settings.ollama_model,
+                "prompt": prompt,
+                "stream": True
+            },
+            stream=True
+        )
+
+        for line in response.iter_lines():
+            if line:
+                data = json.loads(line.decode("utf-8"))
+
+                if "response" in data:
+                    yield data["response"]
