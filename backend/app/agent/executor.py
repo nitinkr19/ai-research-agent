@@ -8,11 +8,12 @@ from app.agent.planner import create_plan
 from app.tools.search import SearchTool
 from app.llm.factory import get_llm_provider
 from app.memory.factory import get_vector_store
+from app.tools.factory import get_search_tool
 from app.memory.faiss_store import FaissVectorStore
 
 
 llm = get_llm_provider()
-search_tool = SearchTool()
+search_tool = get_search_tool()
 
 def run_agent(topic: str):
 

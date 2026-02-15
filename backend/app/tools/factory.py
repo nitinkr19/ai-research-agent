@@ -5,12 +5,10 @@ from app.tools.tavily_search import TavilySearchTool
 
 def get_search_tool():
 
-    provider = settings.search_tool.lower()
-
-    if provider == "local":
+    if settings.search_tool.lower() == "local":
         return SearchTool()
 
-    elif provider == "tavily":
+    elif settings.search_tool.lower() == "tavily":
         return TavilySearchTool()
 
     else:
