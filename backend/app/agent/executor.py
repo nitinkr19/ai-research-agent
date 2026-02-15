@@ -54,12 +54,14 @@ async def run_agent_stream(topic: str):
     for q in plan:
         yield f"- {q}\n"
 
-    yield "\n🧠 Generating report...\n\n"
+    yield "\n🌐 Gathering research in parallel...\n\n"
 
     research_notes = []
 
     tasks = [fetch_question(q) for q in plan]
     research_notes = await asyncio.gather(*tasks)
+
+    yield "\n🧠 Generating report...\n\n"
 
     messages = [
         {"role": "system", "content": "Write a structured report."},
