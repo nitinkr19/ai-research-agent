@@ -6,6 +6,7 @@ Can be extended to use SerpAPI, Tavily, or custom search backends.
 # from typing import List, Optional
 
 from app.tools.base import Tool
+import asyncio
 
 class SearchTool(Tool):
     
