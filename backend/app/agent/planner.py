@@ -3,8 +3,8 @@ Planner: breaks down research tasks into step-by-step plans.
 Uses the LLM to generate structured research plans.
 """
 
+import json
 from app.llm.base import BaseLLMProvider
-
 from app.llm.factory import get_llm_provider
 
 llm = get_llm_provider()

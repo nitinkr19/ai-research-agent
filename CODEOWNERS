@@ -1,0 +1,8 @@
+# Code Owners - these owners will be automatically requested for review
+# when someone opens a pull request. Ensure branch protection requires
+# their approval before merging.
+#
+# Replace @your-github-username with your GitHub username.
+# See: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+* @your-github-username
