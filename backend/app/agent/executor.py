@@ -7,10 +7,12 @@ import asyncio
 from app.agent.planner import create_plan
 from app.tools.search import SearchTool
 from app.llm.factory import get_llm_provider
+from app.memory.faiss_store import FaissVectorStore
 
 
 llm = get_llm_provider()
 search_tool = SearchTool()
+vector_store = FaissVectorStore(dim=3072)
 
 def run_agent(topic: str):
 
@@ -61,11 +63,21 @@ async def run_agent_stream(topic: str):
     tasks = [fetch_question(q) for q in plan]
     research_notes = await asyncio.gather(*tasks)
 
+    yield "📦 Chunking & indexing research...\n"
+
+    # Store chunks
+    for note in research_notes:
+        vector_store.add(note)
+
+    yield "🔎 Retrieving relevant context...\n"
+
+    relevant_context = vector_store.search(topic, k=3)
+
     yield "\n🧠 Generating report...\n\n"
 
     messages = [
         {"role": "system", "content": "Write a structured report."},
-        {"role": "user", "content": f"Topic: {topic}\nNotes: {research_notes}"}
+        {"role": "user", "content": f"Topic: {topic}\n\nRelevant Context:\n{relevant_context}"}
     ]
 
     for chunk in llm.generate_stream(messages):
