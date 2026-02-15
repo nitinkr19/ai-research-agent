@@ -64,24 +64,44 @@ async def run_agent_stream(topic: str):
     research_notes = await asyncio.gather(*tasks)
 
     yield "📦 Chunking & indexing research...\n"
-
-    # Store chunks
+    
     for note in research_notes:
-        vector_store.add(note)
+        chunks = chunk_text(note)
+
+        for chunk in chunks:
+            vector_store.add(chunk)
 
     yield "🔎 Retrieving relevant context...\n"
 
     relevant_context = vector_store.search(topic, k=3)
+    context_str = "\n\n".join(relevant_context)
 
     yield "\n🧠 Generating report...\n\n"
 
     messages = [
-        {"role": "system", "content": "Write a structured report."},
-        {"role": "user", "content": f"Topic: {topic}\n\nRelevant Context:\n{relevant_context}"}
+        {"role": "system", "content": "Write a concise structured report under 500 words."},
+        {"role": "user", "content": f"Topic: {topic}\n\nRelevant Context:\n{context_str}"}
     ]
 
+    max_chars = 4000
+    count = 0
+
     for chunk in llm.generate_stream(messages):
+        count += len(chunk)
+        if count > max_chars:
+            break
         yield chunk
+
 
 async def fetch_question(question):
     return await search_tool.run(question)
+
+def chunk_text(text, chunk_size=300):
+    words = text.split()
+    chunks = []
+
+    for i in range(0, len(words), chunk_size):
+        chunk = " ".join(words[i:i+chunk_size])
+        chunks.append(chunk)
+
+    return chunks

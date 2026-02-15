@@ -16,7 +16,7 @@ def create_plan(topic: str) -> list[str]:
             "role": "system",
             "content": (
                 "You are a research planner. "
-                "Break the topic into 3-5 research questions. "
+                "Break into EXACTLY 3 research questions."
                 "Return ONLY valid JSON in this format:\n"
                 '{"questions": ["question1", "question2"]}'
             )
