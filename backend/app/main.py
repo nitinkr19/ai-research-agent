@@ -9,12 +9,21 @@ from app.llm.factory import get_llm_provider
 from app.agent.planner import create_plan
 from app.agent.executor import run_agent
 from fastapi.responses import StreamingResponse
+from fastapi.middleware.cors import CORSMiddleware
 import asyncio
 
 from fastapi import FastAPI
 from app.llm.factory import get_llm_provider
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 llm = get_llm_provider()
 
@@ -40,16 +49,42 @@ def plan(topic: str):
 def research(topic: str):
     return run_agent(topic)
 
-@app.post("/research-stream")
+@app.get("/research-stream")
 async def research_stream(topic: str):
 
     async def generator():
         from app.agent.executor import run_agent_stream
 
         async for chunk in run_agent_stream(topic):
-            yield chunk
+            safe_chunk = chunk.replace("\n", "\ndata: ")
+            yield f"data: {safe_chunk}\n\n"
 
-    return StreamingResponse(generator(), media_type="text/plain")
+    return StreamingResponse(
+        generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+        },
+    )
+
+
+@app.get("/test-stream")
+async def test_stream():
+
+    async def generator():
+        for i in range(5):
+            yield f"data: Hello {i}\n\n"
+            await asyncio.sleep(1)
+
+    return StreamingResponse(
+        generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+        },
+    )
 
 # async def main():
 #     """Run the AI research agent."""

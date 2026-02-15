@@ -45,13 +45,19 @@ def run_agent(topic: str):
 
 async def run_agent_stream(topic: str):
 
-    plan = create_plan(topic)
+    yield "🔎 Planning research...\n"
+    await asyncio.sleep(0.01)
 
-    yield f"\n=== PLAN ===\n{plan}\n\n"
-    await asyncio.sleep(0.1)
+    plan = await asyncio.to_thread(create_plan, topic)
+
+    yield "\n=== PLAN ===\n"
+    for q in plan:
+        yield f"- {q}\n"
+
+    yield "\n🧠 Generating report...\n\n"
 
     research_notes = []
-    
+
     tasks = [fetch_question(q) for q in plan]
     research_notes = await asyncio.gather(*tasks)
 
@@ -60,11 +66,8 @@ async def run_agent_stream(topic: str):
         {"role": "user", "content": f"Topic: {topic}\nNotes: {research_notes}"}
     ]
 
-    final_report = llm.generate(messages)
-
-    for char in final_report:
-        yield char
-        await asyncio.sleep(0.005)
+    for chunk in llm.generate_stream(messages):
+        yield chunk
 
 async def fetch_question(question):
     return search_tool.run(question)

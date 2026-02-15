@@ -6,29 +6,25 @@ function App() {
   const [report, setReport] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const runResearch = async () => {
+  
+  const runResearch = () => {
     setLoading(true);
     setReport("");
-    setPlan(null);
   
-    const response = await fetch(`/research-stream?topic=${encodeURIComponent(topic)}`, {
-      method: "POST"
-    });
+    const eventSource = new EventSource(
+      `http://localhost:8000/research-stream?topic=${encodeURIComponent(topic)}`
+    );
   
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
+    eventSource.onmessage = (event) => {
+      setReport(prev => prev + event.data);
+    };
   
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-  
-      const chunk = decoder.decode(value);
-      setReport(prev => prev + chunk);
-    }
-  
-    setLoading(false);
+    eventSource.onerror = (err) => {
+      console.log("SSE error:", err);
+      eventSource.close();
+      setLoading(false);
+    };
   };
-  
 
   return (
     <div style={{ padding: "40px", fontFamily: "Arial" }}>
