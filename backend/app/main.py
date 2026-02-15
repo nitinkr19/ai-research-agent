@@ -8,6 +8,8 @@ from app.core.config import settings
 from app.llm.factory import get_llm_provider
 from app.agent.planner import create_plan
 from app.agent.executor import run_agent
+from fastapi.responses import StreamingResponse
+import asyncio
 
 from fastapi import FastAPI
 from app.llm.factory import get_llm_provider
@@ -38,6 +40,16 @@ def plan(topic: str):
 def research(topic: str):
     return run_agent(topic)
 
+@app.post("/research-stream")
+async def research_stream(topic: str):
+
+    async def generator():
+        from app.agent.executor import run_agent_stream
+
+        async for chunk in run_agent_stream(topic):
+            yield chunk
+
+    return StreamingResponse(generator(), media_type="text/plain")
 
 # async def main():
 #     """Run the AI research agent."""

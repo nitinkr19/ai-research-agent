@@ -4,16 +4,31 @@ function App() {
   const [topic, setTopic] = useState("");
   const [plan, setPlan] = useState(null);
   const [report, setReport] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const runResearch = async () => {
-    const response = await fetch(`/research?topic=${encodeURIComponent(topic)}`, {
+    setLoading(true);
+    setReport("");
+    setPlan(null);
+  
+    const response = await fetch(`/research-stream?topic=${encodeURIComponent(topic)}`, {
       method: "POST"
     });
-
-    const data = await response.json();
-    setPlan(data.plan);
-    setReport(data.report);
+  
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+  
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+  
+      const chunk = decoder.decode(value);
+      setReport(prev => prev + chunk);
+    }
+  
+    setLoading(false);
   };
+  
 
   return (
     <div style={{ padding: "40px", fontFamily: "Arial" }}>
@@ -27,7 +42,11 @@ function App() {
       />
 
       <br /><br />
-      <button onClick={runResearch}>Run Research</button>
+      <button onClick={runResearch} disabled={loading}>
+        {loading ? "Running..." : "Run Research"}
+      </button>
+
+      {loading && <p>⏳ Generating research...</p>}
 
       {plan && (
         <>
@@ -47,4 +66,3 @@ function App() {
 }
 
 export default App;
-
