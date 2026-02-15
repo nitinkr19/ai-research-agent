@@ -7,12 +7,12 @@ import asyncio
 from app.agent.planner import create_plan
 from app.tools.search import SearchTool
 from app.llm.factory import get_llm_provider
+from app.memory.factory import get_vector_store
 from app.memory.faiss_store import FaissVectorStore
 
 
 llm = get_llm_provider()
 search_tool = SearchTool()
-vector_store = FaissVectorStore(dim=3072)
 
 def run_agent(topic: str):
 
@@ -46,6 +46,8 @@ def run_agent(topic: str):
     }
 
 async def run_agent_stream(topic: str):
+
+    vector_store = get_vector_store()
 
     yield "🔎 Planning research...\n"
     await asyncio.sleep(0.01)

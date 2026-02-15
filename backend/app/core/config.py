@@ -65,6 +65,16 @@ class Settings:
     def embedding_model(self) -> str:
         """EMBEDDING_MODEL name."""
         return os.getenv("EMBEDDING_MODEL", "phi3:mini")
+    
+    @property
+    def vector_store(self) -> str:
+        """vector_store name."""
+        return os.getenv("VECTOR_STORE", "faiss")
+
+    @property
+    def search_tool(self) -> str:
+        """search_tool name."""
+        return os.getenv("SEARCH_PROVIDER", "local")
 
 
 # Convenience instance
