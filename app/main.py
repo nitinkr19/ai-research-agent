@@ -7,7 +7,7 @@ import asyncio
 from app.core.config import settings
 from app.llm.factory import get_llm_provider
 from app.agent.planner import create_plan
-from app.agent.executor import Executor
+from app.agent.executor import run_agent
 
 from fastapi import FastAPI
 from app.llm.factory import get_llm_provider
@@ -33,6 +33,11 @@ def test_llm(prompt: str):
 @app.post("/plan")
 def plan(topic: str):
     return {"questions": create_plan(topic)}
+
+@app.post("/research")
+def research(topic: str):
+    return run_agent(topic)
+
 
 # async def main():
 #     """Run the AI research agent."""
