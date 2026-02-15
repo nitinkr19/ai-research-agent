@@ -3,28 +3,59 @@ Planner: breaks down research tasks into step-by-step plans.
 Uses the LLM to generate structured research plans.
 """
 
-from app.agent.prompts import PLANNING_SYSTEM, PLANNING_USER
 from app.llm.base import BaseLLMProvider
 
+from app.llm.factory import get_llm_provider
 
-class Planner:
-    """Creates research plans from natural language tasks."""
+llm = get_llm_provider()
 
-    def __init__(self, llm: BaseLLMProvider):
-        self.llm = llm
+def create_plan(topic: str) -> list[str]:
 
-    async def create_plan(self, task: str) -> str:
-        """
-        Generate a research plan for the given task.
+    messages = [
+        {
+            "role": "system",
+            "content": (
+                "You are a research planner. "
+                "Break the topic into 3-5 research questions. "
+                "Return ONLY valid JSON in this format:\n"
+                '{"questions": ["question1", "question2"]}'
+            )
+        },
+        {
+            "role": "user",
+            "content": topic
+        }
+    ]
 
-        Args:
-            task: Natural language description of the research task.
+    response = llm.generate(messages)
 
-        Returns:
-            A step-by-step plan as a string.
-        """
-        messages = [
-            {"role": "system", "content": PLANNING_SYSTEM},
-            {"role": "user", "content": PLANNING_USER.format(task=task)},
-        ]
-        return await self.llm.complete(messages)
+    try:
+        parsed = json.loads(response)
+        return parsed["questions"]
+    except Exception:
+        # fallback in case model misbehaves
+        return [response]
+
+# class Planner:
+#     """Creates research plans from natural language tasks."""
+
+#     def __init__(self, llm: BaseLLMProvider):
+#         self.llm = llm
+
+#     async def create_plan(self, task: str) -> str:
+#         """
+#         Generate a research plan for the given task.
+
+#         Args:
+#             task: Natural language description of the research task.
+
+#         Returns:
+#             A step-by-step plan as a string.
+#         """
+#         messages = [
+#             {"role": "system", "content": PLANNING_SYSTEM},
+#             {"role": "user", "content": PLANNING_USER.format(task=task)},
+#         ]
+#         return await self.llm.complete(messages)
+
+#     import json
