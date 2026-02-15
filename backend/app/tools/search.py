@@ -8,9 +8,11 @@ Can be extended to use SerpAPI, Tavily, or custom search backends.
 from app.tools.base import Tool
 
 class SearchTool(Tool):
-
-    def run(self, query: str) -> str:
-        return f"Simulated search results related to: {query}"
+    
+    async def run(self, query: str) -> str:
+        # simulate network delay
+        await asyncio.sleep(1)
+        return f"Simulated search results for: {query}"
 
 # async def web_search(query: str, num_results: int = 5) -> List[dict]:
 #     """
