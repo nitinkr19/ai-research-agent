@@ -29,22 +29,34 @@ logging.basicConfig(
     force=True,
 )
 
-DAILY_LIMIT = 100
-request_count = 0
+DAILY_LIMIT = 200
+DAILY_LIMIT_PER_IP = 20
+
+request_counts = defaultdict(int)
 current_day = datetime.utcnow().date()
 
-def check_daily_limit():
-    global request_count, current_day
+def check_daily_limit(request: Request):
+    global current_day, request_counts
 
     today = datetime.utcnow().date()
 
     if today != current_day:
         current_day = today
+        request_counts = defaultdict(int)
         request_count = 0
+
+    client_ip = request.client.host
 
     if request_count >= DAILY_LIMIT:
         raise HTTPException(status_code=429, detail="Daily limit reached")
 
+    if request_counts[client_ip] >= DAILY_LIMIT_PER_IP:
+        raise HTTPException(
+            status_code=429,
+            detail="Daily limit per IP reached"
+        )
+
+    request_counts[client_ip] += 1
     request_count += 1
 
 ENV = os.getenv("ENV", "dev")
@@ -54,9 +66,20 @@ if ENV == "prod":
 else:
     app = FastAPI()
 
+if ENV == "prod":
+    allowed_origins = [
+        "https://intelligentsearch.in",
+        "https://www.intelligentsearch.in",
+    ]
+else:
+    allowed_origins = [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+    ]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
