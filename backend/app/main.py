@@ -20,6 +20,7 @@ from datetime import datetime
 from fastapi import HTTPException
 
 import logging
+import os
 
 logging.basicConfig(
     level=logging.INFO,
@@ -46,8 +47,12 @@ def check_daily_limit():
 
     request_count += 1
 
+ENV = os.getenv("ENV", "dev")
 
-app = FastAPI()
+if ENV == "prod":
+    app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
+else:
+    app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
