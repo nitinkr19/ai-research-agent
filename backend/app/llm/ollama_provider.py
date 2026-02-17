@@ -50,7 +50,6 @@ class OllamaProvider(BaseLLMProvider):
         )
 
         print("STATUS:", response.status_code)
-        print("RAW:", response.text)
         return response.json()["response"]
     
     def generate_stream(self, messages):

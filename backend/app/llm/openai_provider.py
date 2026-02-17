@@ -18,31 +18,12 @@ class OpenAIProvider(BaseLLMProvider):
         self.model = model
         self.client = OpenAI(api_key=settings.openai_api_key)
 
-    # async def complete(
-    #     self,
-    #     messages: List[Dict[str, str]],
-    #     **kwargs: Any,
-    # ) -> str:
-    #     """Call OpenAI Chat Completions API."""
-    #     try:
-    #         from openai import AsyncOpenAI
-    #     except ImportError:
-    #         raise ImportError("Install openai: pip install openai")
-
-    #     client = AsyncOpenAI(api_key=self.api_key)
-    #     response = await client.chat.completions.create(
-    #         model=self.model,
-    #         messages=messages,
-    #         **kwargs,
-    #     )
-    #     return response.choices[0].message.content or ""
-
     def __repr__(self) -> str:
         return f"OpenAIProvider(model={self.model})"
     
     def generate(self, messages):
         response = self.client.chat.completions.create(
-            model=settings.MODEL_NAME,
+            model=settings.openai_model,
             messages=messages,
             temperature=0.3,
         )

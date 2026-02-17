@@ -11,15 +11,47 @@ from app.agent.executor import run_agent
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 import asyncio
+import sys
 
 from fastapi import FastAPI
 from app.llm.factory import get_llm_provider
+
+from datetime import datetime
+from fastapi import HTTPException
+
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
+    handlers=[logging.StreamHandler(sys.stdout)],
+    force=True,
+)
+
+DAILY_LIMIT = 100
+request_count = 0
+current_day = datetime.utcnow().date()
+
+def check_daily_limit():
+    global request_count, current_day
+
+    today = datetime.utcnow().date()
+
+    if today != current_day:
+        current_day = today
+        request_count = 0
+
+    if request_count >= DAILY_LIMIT:
+        raise HTTPException(status_code=429, detail="Daily limit reached")
+
+    request_count += 1
+
 
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -51,13 +83,18 @@ def research(topic: str):
 
 @app.get("/research-stream")
 async def research_stream(topic: str):
-
     async def generator():
+        check_daily_limit()
         from app.agent.executor import run_agent_stream
 
-        async for chunk in run_agent_stream(topic):
-            safe_chunk = chunk.replace("\n", "\ndata: ")
-            yield f"data: {safe_chunk}\n\n"
+        try:
+            async for chunk in run_agent_stream(topic):
+                safe_chunk = chunk.replace("\n", "\ndata: ")
+                yield f"data: {safe_chunk}\n\n"
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            yield "\n\n❌ Internal error. Please try again later.\n"
 
     return StreamingResponse(
         generator(),

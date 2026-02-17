@@ -58,13 +58,18 @@ class Settings:
     
     @property
     def generation_model(self) -> str:
-        """EMBEDDING_MODEL name."""
+        """GENERATION_MODEL name."""
         return os.getenv("GENERATION_MODEL", "phi3:mini")
 
     @property
     def embedding_model(self) -> str:
         """EMBEDDING_MODEL name."""
-        return os.getenv("EMBEDDING_MODEL", "phi3:mini")
+        return os.getenv("EMBEDDING_MODEL", "nomic-embed-text")
+
+    @property
+    def embedding_provider(self) -> str:
+        """EMBEDDING_PROVIDER name."""
+        return os.getenv("EMBEDDING_PROVIDER", "nomic-embed-text")
     
     @property
     def vector_store(self) -> str:
@@ -75,6 +80,11 @@ class Settings:
     def search_tool(self) -> str:
         """search_tool name."""
         return os.getenv("SEARCH_PROVIDER", "local")
+    
+    @property
+    def embedding_cache_file(self) -> str:
+        """embedding_cache_file name."""
+        return os.getenv("EMBEDDING_CACHE_FILE", "embedding_cache.json")
 
 
 # Convenience instance
