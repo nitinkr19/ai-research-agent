@@ -17,8 +17,10 @@ from fastapi import FastAPI
 from app.llm.factory import get_llm_provider
 
 from datetime import datetime
-from fastapi import HTTPException
+from collections import defaultdict
+from fastapi import Request, HTTPException
 
+import threading
 import logging
 import os
 
@@ -29,35 +31,50 @@ logging.basicConfig(
     force=True,
 )
 
-DAILY_LIMIT = 200
-DAILY_LIMIT_PER_IP = 20
+# Limits
+GLOBAL_DAILY_LIMIT = 200
+PER_IP_DAILY_LIMIT = 20
 
-request_counts = defaultdict(int)
+# State
+global_count = 0
+ip_counts = defaultdict(int)
 current_day = datetime.utcnow().date()
 
-def check_daily_limit(request: Request):
-    global current_day, request_counts
+# Lock (important for concurrency safety)
+lock = threading.Lock()
+
+
+def check_daily_limits(request: Request):
+    global global_count, ip_counts, current_day
 
     today = datetime.utcnow().date()
 
-    if today != current_day:
-        current_day = today
-        request_counts = defaultdict(int)
-        request_count = 0
+    with lock:
+        # Reset counters if new day
+        if today != current_day:
+            current_day = today
+            global_count = 0
+            ip_counts = defaultdict(int)
 
-    client_ip = request.client.host
+        client_ip = request.client.host
 
-    if request_count >= DAILY_LIMIT:
-        raise HTTPException(status_code=429, detail="Daily limit reached")
+        # Check global limit first
+        if global_count >= GLOBAL_DAILY_LIMIT:
+            raise HTTPException(
+                status_code=429,
+                detail="Global daily limit reached"
+            )
 
-    if request_counts[client_ip] >= DAILY_LIMIT_PER_IP:
-        raise HTTPException(
-            status_code=429,
-            detail="Daily limit per IP reached"
-        )
+        # Check per-IP limit
+        if ip_counts[client_ip] >= PER_IP_DAILY_LIMIT:
+            raise HTTPException(
+                status_code=429,
+                detail="Daily limit per IP reached"
+            )
 
-    request_counts[client_ip] += 1
-    request_count += 1
+        # Increment counters
+        global_count += 1
+        ip_counts[client_ip] += 1
 
 ENV = os.getenv("ENV", "dev")
 
@@ -110,9 +127,9 @@ def research(topic: str):
     return run_agent(topic)
 
 @app.get("/research-stream")
-async def research_stream(topic: str):
+async def research_stream(request: Request, topic: str):
     async def generator():
-        check_daily_limit()
+        check_daily_limits(request)
         from app.agent.executor import run_agent_stream
 
         try:
