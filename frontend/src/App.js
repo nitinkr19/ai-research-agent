@@ -1,4 +1,9 @@
 import { useState } from "react";
+import {
+  formatJsonAsBullets,
+  renderFormattedText,
+  renderMarkdown,
+} from "./reportFormatting";
 
 function App() {
   const [topic, setTopic] = useState("");
@@ -85,13 +90,13 @@ function App() {
             padding: '20px',
             borderRadius: '6px',
             border: '1px solid #e9ecef',
-            overflowX: 'auto',
-            whiteSpace: 'pre-wrap',
-            wordBreak: 'break-word'
+            overflowX: 'hidden',
+            wordBreak: 'break-word',
+            lineHeight: '1.8'
           }}>
-            <pre style={{ margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-word', fontFamily: 'inherit' }}>
-              {JSON.stringify(plan, null, 2)}
-            </pre>
+            <div style={{ marginLeft: '10px' }}>
+              {renderMarkdown(formatJsonAsBullets(plan))}
+            </div>
           </div>
         </div>
       )}
@@ -108,18 +113,17 @@ function App() {
             maxHeight: '70vh',
             overflowY: 'auto',
             overflowX: 'hidden',
-            lineHeight: '1.6',
+            lineHeight: '1.8',
             fontSize: '15px',
             color: '#333'
           }}>
             <div style={{
-              whiteSpace: 'pre-wrap',
               wordWrap: 'break-word',
               wordBreak: 'break-word',
               overflowWrap: 'break-word',
               maxWidth: '100%'
             }}>
-              {report}
+              {renderFormattedText(report)}
             </div>
           </div>
         </div>
