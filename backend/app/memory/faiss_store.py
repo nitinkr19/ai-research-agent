@@ -4,26 +4,29 @@ import requests
 from typing import List
 from app.memory.base import BaseVectorStore
 from app.core.config import settings
+from app.llm.embeddings_cache import CachedEmbeddingProvider
+from app.llm.embeddings import EmbeddingProvider
+import logging
 
+logger = logging.getLogger(__name__)
 
 class FaissVectorStore(BaseVectorStore):
 
-    def __init__(self, dim: int = 3072):
-        self.dim = dim
-        self.index = faiss.IndexFlatL2(dim)
+    def __init__(self, dim: int):
+        self.dim = EmbeddingProvider.dim()
+        print("dim")
+        print(dim)
+        self.index = faiss.IndexFlatL2(self.dim)
         self.text_chunks = []
 
     def embed(self, text: str):
-        response = requests.post(
-            f"{settings.ollama_base_url}/api/embeddings",
-            json={
-                "model": settings.embedding_model,
-                "prompt": text
-            }
-        )
-
-        embedding = response.json()["embedding"]
-        return np.array(embedding, dtype="float32")
+        try:
+            return CachedEmbeddingProvider.embed(text)
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            logger.error("embedding_failed")
+            raise
 
     def add(self, text: str):
         vector = self.embed(text)

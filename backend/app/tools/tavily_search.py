@@ -2,7 +2,11 @@ import asyncio
 import requests
 import os
 from app.tools.base import Tool
+import logging
 
+logger = logging.getLogger(__name__)
+
+MAX_TAVILY_QUERY_LENGTH = 380  # leave buffer margin
 
 class TavilySearchTool(Tool):
 
@@ -12,6 +16,10 @@ class TavilySearchTool(Tool):
     def _search_sync(self, query: str) -> str:
 
         print(">>> USING TAVILY SEARCH <<<")
+
+        if len(query) > MAX_TAVILY_QUERY_LENGTH:
+            logger.info(f"Tavily query too long: {len(query)} chars")
+            query = query[:MAX_TAVILY_QUERY_LENGTH]
 
         response = requests.post(
             "https://api.tavily.com/search",
@@ -25,7 +33,6 @@ class TavilySearchTool(Tool):
         )
 
         print("Tavily status:", response.status_code)
-        print("Tavily response:", response.text)
         data = response.json()
 
         results_text = []

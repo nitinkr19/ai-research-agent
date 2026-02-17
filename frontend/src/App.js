@@ -6,13 +6,14 @@ function App() {
   const [report, setReport] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const API_BASE = process.env.REACT_APP_API_URL;
   
   const runResearch = () => {
     setLoading(true);
     setReport("");
   
     const eventSource = new EventSource(
-      `http://localhost:8000/research-stream?topic=${encodeURIComponent(topic)}`
+      `${API_BASE}/research-stream?topic=${encodeURIComponent(topic)}`
     );
   
     eventSource.onmessage = (event) => {

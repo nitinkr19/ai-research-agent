@@ -6,7 +6,7 @@ def get_vector_store():
     provider = settings.vector_store.lower()
 
     if provider == "faiss":
-        return FaissVectorStore(dim=3072)
+        return FaissVectorStore(dim=1536)
 
     else:
         raise ValueError("Invalid VECTOR_STORE")
