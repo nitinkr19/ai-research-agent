@@ -4,7 +4,7 @@ All providers (OpenAI, Ollama) implement this protocol.
 """
 
 from abc import ABC, abstractmethod
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Generator
 
 
 class BaseLLMProvider(ABC):

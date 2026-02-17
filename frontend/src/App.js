@@ -2,7 +2,7 @@ import { useState } from "react";
 
 function App() {
   const [topic, setTopic] = useState("");
-  const [plan, setPlan] = useState(null);
+  const [plan] = useState(null);
   const [report, setReport] = useState("");
   const [loading, setLoading] = useState(false);
 
