@@ -12,10 +12,11 @@ logger = logging.getLogger(__name__)
 
 class FaissVectorStore(BaseVectorStore):
 
-    def __init__(self, dim: int):
+    def __init__(self, dim: int = None):
+        # Dimension is determined dynamically based on the embedding provider
+        # The dim parameter is kept for backward compatibility but ignored
         self.dim = EmbeddingProvider.dim()
-        print("dim")
-        print(dim)
+        logger.info(f"Initializing FAISS index with dimension: {self.dim} (provider: {settings.embedding_provider})")
         self.index = faiss.IndexFlatL2(self.dim)
         self.text_chunks = []
 
