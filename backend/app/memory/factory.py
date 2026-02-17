@@ -6,7 +6,7 @@ def get_vector_store():
     provider = settings.vector_store.lower()
 
     if provider == "faiss":
-        return FaissVectorStore(dim=1536)
+        return FaissVectorStore(dim=None)  # Dimension determined dynamically by EmbeddingProvider.dim()
 
     else:
         raise ValueError("Invalid VECTOR_STORE")

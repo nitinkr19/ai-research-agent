@@ -28,3 +28,17 @@ class OpenAIProvider(BaseLLMProvider):
             temperature=0.3,
         )
         return response.choices[0].message.content
+
+    def generate_stream(self, messages):
+
+        response = self.client.chat.completions.create(
+            model=settings.openai_model,   # e.g. "gpt-4o-mini"
+            messages=messages,
+            stream=True,
+        )
+
+        for chunk in response:
+            if chunk.choices:
+                delta = chunk.choices[0].delta
+                if delta and delta.content:
+                    yield delta.content
