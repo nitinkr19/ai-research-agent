@@ -106,24 +106,24 @@ flowchart TD
     subgraph SEARCH_LAYER
         LocalSearch[Local Search]
         Tavily[Tavily API]
-        ExternalSearch[External APIs]
-        Scraper[Web Scraper]
+        <!-- ExternalSearch[External APIs]
+        Scraper[Web Scraper] -->
     end
 
     %% EMBEDDING LAYER
     subgraph EMBEDDING_LAYER
         OpenAIEmb[OpenAI Embeddings]
         OllamaEmb[Ollama Embeddings]
-        HFEmb[HuggingFace / Other]
+        <!-- HFEmb[HuggingFace / Other] -->
     end
 
     %% VECTOR STORE
     subgraph VECTOR_STORE
         FAISS[FAISS]
-        Pinecone[Pinecone]
+        <!-- Pinecone[Pinecone]
         Milvus[Milvus]
         Weaviate[Weaviate]
-        Qdrant[Qdrant]
+        Qdrant[Qdrant] -->
     end
 
     %% FLOW
