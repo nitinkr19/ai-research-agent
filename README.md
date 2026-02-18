@@ -77,6 +77,7 @@ ollama pull llama2
 ollama pull nomic-embed-text   # for embeddings (if using FAISS)
 ```
 
+```mermaid
 flowchart TD
     %% CLIENT LAYER
     subgraph CLIENT
@@ -113,8 +114,33 @@ flowchart TD
     subgraph EMBEDDING_LAYER
         OpenAIEmb[OpenAI Embeddings]
         OllamaEmb[Ollama Embeddings]
-        HFEmb[Hug]()
+        HFEmb[HuggingFace / Other]
+    end
 
+    %% VECTOR STORE
+    subgraph VECTOR_STORE
+        FAISS[FAISS]
+        Pinecone[Pinecone]
+        Milvus[Milvus]
+        Weaviate[Weaviate]
+        Qdrant[Qdrant]
+    end
+
+    %% FLOW
+    UI --> FastAPI
+    CLI --> FastAPI
+    FastAPI --> Planner
+    Planner --> LLM
+    Planner --> Executor
+    Executor --> LLM
+    Executor --> SEARCH_LAYER
+    SEARCH_LAYER --> Memory
+    Memory --> EMBEDDING_LAYER
+    EMBEDDING_LAYER --> VECTOR_STORE
+    VECTOR_STORE --> Executor
+    Executor --> FastAPI
+    FastAPI --> UI
+```
 
 ## Quick Start
 
