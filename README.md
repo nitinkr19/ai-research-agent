@@ -77,6 +77,45 @@ ollama pull llama2
 ollama pull nomic-embed-text   # for embeddings (if using FAISS)
 ```
 
+flowchart TD
+    %% CLIENT LAYER
+    subgraph CLIENT
+        UI[React Frontend]
+        CLI[CLI / Scripts]
+    end
+
+    %% API LAYER
+    subgraph API
+        FastAPI[FastAPI Server]
+    end
+
+    %% AGENT CORE
+    subgraph AGENT_CORE
+        Planner[Planner]
+        Executor[Executor]
+        Memory[Memory Manager]
+    end
+
+    %% LLM LAYER
+    subgraph LLM_LAYER
+        LLM[LLM Provider]
+    end
+
+    %% SEARCH LAYER
+    subgraph SEARCH_LAYER
+        LocalSearch[Local Search]
+        Tavily[Tavily API]
+        ExternalSearch[External APIs]
+        Scraper[Web Scraper]
+    end
+
+    %% EMBEDDING LAYER
+    subgraph EMBEDDING_LAYER
+        OpenAIEmb[OpenAI Embeddings]
+        OllamaEmb[Ollama Embeddings]
+        HFEmb[Hug]()
+
+
 ## Quick Start
 
 ### 1. Backend
