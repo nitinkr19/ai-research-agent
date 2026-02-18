@@ -133,6 +133,19 @@ flowchart TD
     FastAPI --> UI
 ```
 
+## Example Research Flow
+
+1. User submits topic
+2. Planner decomposes into research questions
+3. Executor:
+    1. Calls search provider
+    2. Retrieves documents
+    3. Embeds content
+4. Stores in vector DB
+5. Relevant context retrieved
+6. LLM synthesizes final research report
+7. Results streamed to UI
+
 ## Quick Start
 
 ### 1. Backend
