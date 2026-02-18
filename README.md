@@ -120,7 +120,6 @@ flowchart TD
 
     %% FLOW
     UI --> FastAPI
-    CLI --> FastAPI
     FastAPI --> Planner
     Planner --> LLM
     Planner --> Executor
