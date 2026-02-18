@@ -82,7 +82,6 @@ flowchart TD
     %% CLIENT LAYER
     subgraph CLIENT
         UI[React Frontend]
-        CLI[CLI / Scripts]
     end
 
     %% API LAYER
