@@ -53,7 +53,7 @@ ai-research-agent/
 │   │   └── App.js
 │   └── package.json
 │
-├── CODEOWNERS              # PR reviewers (replace @your-github-username)
+├── CODEOWNERS              # PR reviewers 
 ├── .github/
 │   ├── PULL_REQUEST_TEMPLATE.md
 │   ├── REQUIRE_REVIEW.md   # How to set branch protection
@@ -106,24 +106,17 @@ flowchart TD
     subgraph SEARCH_LAYER
         LocalSearch[Local Search]
         Tavily[Tavily API]
-        <!-- ExternalSearch[External APIs]
-        Scraper[Web Scraper] -->
     end
 
     %% EMBEDDING LAYER
     subgraph EMBEDDING_LAYER
         OpenAIEmb[OpenAI Embeddings]
         OllamaEmb[Ollama Embeddings]
-        <!-- HFEmb[HuggingFace / Other] -->
     end
 
     %% VECTOR STORE
     subgraph VECTOR_STORE
         FAISS[FAISS]
-        <!-- Pinecone[Pinecone]
-        Milvus[Milvus]
-        Weaviate[Weaviate]
-        Qdrant[Qdrant] -->
     end
 
     %% FLOW
