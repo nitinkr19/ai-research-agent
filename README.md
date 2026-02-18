@@ -77,6 +77,10 @@ ollama pull llama2
 ollama pull nomic-embed-text   # for embeddings (if using FAISS)
 ```
 
+### Architecure
+
+![AI Research Agent Architecture Diagram](docs/AI_Research_Agent_Architecure.png)
+
 ```mermaid
 flowchart TD
     %% CLIENT LAYER
