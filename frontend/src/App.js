@@ -28,6 +28,15 @@ function App() {
     };
   };
 
+  const spinnerStyle = {
+    width: "16px",
+    height: "16px",
+    border: "2px solid #ccc",
+    borderTop: "2px solid #007bff",
+    borderRadius: "50%",
+    animation: "spin 0.8s linear infinite",
+  };
+
   return (
     <div
       style={{
@@ -38,6 +47,14 @@ function App() {
       }}
     >
       <h2 style={{ marginBottom: "30px", color: "#333" }}>AI Research Agent</h2>
+      <style>
+      {`
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      `}
+      </style>
 
       <textarea
         style={{
@@ -80,9 +97,16 @@ function App() {
       </button>
 
       {loading && (
-        <p style={{ marginTop: "10px", position: "relative", zIndex: 0, color: "#666" }}>
-          ⏳ Generating research...
-        </p>
+        <div style={{ 
+          marginTop: "10px", 
+          display: "flex", 
+          alignItems: "center", 
+          gap: "8px",
+          color: "#666"
+        }}>
+          <div style={spinnerStyle}></div>
+          <span>Generating research...</span>
+        </div>
       )}
 
       {plan && (
