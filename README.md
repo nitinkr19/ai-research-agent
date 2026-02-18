@@ -53,7 +53,7 @@ ai-research-agent/
 │   │   └── App.js
 │   └── package.json
 │
-├── CODEOWNERS              # PR reviewers (replace @your-github-username)
+├── CODEOWNERS              # PR reviewers 
 ├── .github/
 │   ├── PULL_REQUEST_TEMPLATE.md
 │   ├── REQUIRE_REVIEW.md   # How to set branch protection
@@ -76,6 +76,79 @@ ai-research-agent/
 ollama pull llama2
 ollama pull nomic-embed-text   # for embeddings (if using FAISS)
 ```
+
+### Architecure
+
+![AI Research Agent Architecture Diagram](docs/AI_Research_Agent_Architecure.png)
+
+```mermaid
+flowchart TD
+    %% CLIENT LAYER
+    subgraph CLIENT
+        UI[React Frontend]
+    end
+
+    %% API LAYER
+    subgraph API
+        FastAPI[FastAPI Server]
+    end
+
+    %% AGENT CORE
+    subgraph AGENT_CORE
+        Planner[Planner]
+        Executor[Executor]
+        Memory[Memory Manager]
+    end
+
+    %% LLM LAYER
+    subgraph LLM_LAYER
+        LLM[LLM Provider]
+    end
+
+    %% SEARCH LAYER
+    subgraph SEARCH_LAYER
+        LocalSearch[Local Search]
+        Tavily[Tavily API]
+    end
+
+    %% EMBEDDING LAYER
+    subgraph EMBEDDING_LAYER
+        OpenAIEmb[OpenAI Embeddings]
+        OllamaEmb[Ollama Embeddings]
+    end
+
+    %% VECTOR STORE
+    subgraph VECTOR_STORE
+        FAISS[FAISS]
+    end
+
+    %% FLOW
+    UI --> FastAPI
+    FastAPI --> Planner
+    Planner --> LLM
+    Planner --> Executor
+    Executor --> LLM
+    Executor --> SEARCH_LAYER
+    SEARCH_LAYER --> Memory
+    Memory --> EMBEDDING_LAYER
+    EMBEDDING_LAYER --> VECTOR_STORE
+    VECTOR_STORE --> Executor
+    Executor --> FastAPI
+    FastAPI --> UI
+```
+
+## Example Research Flow
+
+1. User submits topic
+2. Planner decomposes into research questions
+3. Executor:
+    1. Calls search provider
+    2. Retrieves documents
+    3. Embeds content
+4. Stores in vector DB
+5. Relevant context retrieved
+6. LLM synthesizes final research report
+7. Results streamed to UI
 
 ## Quick Start
 
