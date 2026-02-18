@@ -147,6 +147,7 @@ async def research_stream(request: Request, topic: str):
         headers={
             "Cache-Control": "no-cache",
             "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
         },
     )
 
