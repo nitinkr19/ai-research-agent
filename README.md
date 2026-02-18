@@ -152,7 +152,6 @@ flowchart TD
 
 Layer by Layer configuration here ![LayerConfiguration](docs/Layer_By_Layer_Configuration_Options.md)
 
-
 ## Quick Start
 
 ### 1. Backend
