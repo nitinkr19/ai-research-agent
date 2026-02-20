@@ -150,6 +150,8 @@ flowchart TD
 6. LLM synthesizes final research report
 7. Results streamed to UI
 
+Layer by Layer configuration here ![LayerConfiguration](docs/Layer_By_Layer_Configuration_Options.md)
+
 ## Quick Start
 
 ### 1. Backend
